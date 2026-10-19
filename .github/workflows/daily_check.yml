@@ -2,8 +2,8 @@ name: Ski Condition Alert Agent
 
 on:
   schedule:
-    # Runs automatically at 07:00 AM UTC every day
-    - cron: '0 7 * * *'
+    # Runs automatically at 07:00 AM UTC every 2 days
+    - cron: '0 7 */2 * *'
   # Enables manual execution button in GitHub UI for easy testing
   workflow_dispatch:
 
