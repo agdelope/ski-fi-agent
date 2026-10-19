@@ -3,11 +3,12 @@ import sys
 import requests
 from anthropic import Anthropic, APIError
 
+# Retrieve keys safely from GitHub Secrets
 ANTHROPIC_API_KEY = os.getenv("ANTHROPIC_API_KEY")
 TELEGRAM_BOT_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN")
 TELEGRAM_CHAT_ID = os.getenv("TELEGRAM_CHAT_ID")
 
-# Check if environment variables are loaded
+# Check if environment variables are set
 if not ANTHROPIC_API_KEY:
     print("❌ ERROR: ANTHROPIC_API_KEY secret is missing or empty.")
     sys.exit(1)
@@ -40,7 +41,7 @@ def evaluate_with_claude(weather_data):
         """
 
         response = client.messages.create(
-            model="claude-3-5-sonnet-20241022",
+            model="claude-3-5-sonnet-latest",
             max_tokens=500,
             messages=[{"role": "user", "content": prompt}]
         )
@@ -52,8 +53,7 @@ def evaluate_with_claude(weather_data):
 def send_telegram_notification(message):
     """Send notification directly to your phone via Telegram API"""
     if not TELEGRAM_BOT_TOKEN or not TELEGRAM_CHAT_ID:
-        print("⚠️ Telegram credentials missing. Printing output instead:")
-        print(message)
+        print("⚠️ Telegram credentials missing. Skipping notification.")
         return
 
     url = f"https://api.telegram.org/bot{TELEGRAM_BOT_TOKEN}/sendMessage"
@@ -69,6 +69,7 @@ def send_telegram_notification(message):
 def main():
     print("Fetching weather data...")
     weather_data = fetch_weather()
+    
     print("Evaluating conditions with Claude...")
     claude_analysis = evaluate_with_claude(weather_data)
 
@@ -77,7 +78,7 @@ def main():
         full_message = f"{claude_analysis}\n\n🏡 *Browse Accommodation:*\n{airbnb_url}"
         send_telegram_notification(full_message)
     else:
-        print("✅ Success: No trip recommended based on current forecast.")
+        print("✅ Finished: No trip recommended based on current forecast.")
 
 if __name__ == "__main__":
     main()
