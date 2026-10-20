@@ -65,7 +65,7 @@ def evaluate_with_claude(weather_data):
            - Skiing condition rating (e.g., 8/10)
 
            PART 2: 💬 *THE PITCH FOR CAROLINE (Ready to copy & paste)*
-           - A warm, fun, and persuasive message highlighting family benefits (e.g., cozy cabin vibes, sledding/outdoors for Pipe & Alfonso, hot drinks, good weather window).
+           - A warm, fun, and persuasive message highlighting family benefits (cozy cabin vibes, outdoor snow play for kids, hot drinks, good weather window).
         """
 
         response = client.messages.create(
@@ -90,3 +90,24 @@ def send_telegram_notification(message):
         "chat_id": TELEGRAM_CHAT_ID,
         "text": message,
         "parse_mode": "Markdown"
+    }
+    res = requests.post(url, json=payload)
+    if res.status_code != 200:
+        print(f"⚠️ Telegram send failed: {res.text}")
+
+def main():
+    print("Fetching weather for all target skiing spots...")
+    weather_data = fetch_weather_for_destinations()
+    
+    print("Evaluating top spot with Claude...")
+    claude_analysis = evaluate_with_claude(weather_data)
+
+    if not claude_analysis.startswith("NO_TRIP"):
+        airbnb_url = "https://www.airbnb.com/s/Sweden/homes"
+        full_message = f"{claude_analysis}\n\n🏡 *Browse Accommodations:*\n{airbnb_url}"
+        send_telegram_notification(full_message)
+    else:
+        print("✅ Finished: No trip recommended based on current forecasts.")
+
+if __name__ == "__main__":
+    main()
