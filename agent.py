@@ -3,7 +3,6 @@ import sys
 import requests
 from anthropic import Anthropic, APIError
 
-# Retrieve keys safely from GitHub Secrets
 ANTHROPIC_API_KEY = os.getenv("ANTHROPIC_API_KEY")
 TELEGRAM_BOT_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN")
 TELEGRAM_CHAT_ID = os.getenv("TELEGRAM_CHAT_ID")
@@ -12,7 +11,6 @@ if not ANTHROPIC_API_KEY:
     print("❌ ERROR: ANTHROPIC_API_KEY secret is missing or empty.")
     sys.exit(1)
 
-# Target ski destinations with coordinates
 DESTINATIONS = {
     "Högbo Bruk / Sandviken": {"lat": 60.62, "lon": 16.78, "airbnb_loc": "Hogbo-Bruk--Sweden"},
     "Hemlingby / Gävle": {"lat": 60.65, "lon": 17.16, "airbnb_loc": "Gavle--Sweden"},
@@ -69,7 +67,7 @@ def evaluate_with_claude(weather_data):
         """
 
         response = client.messages.create(
-            model="claude-3-haiku-20240307",
+            model="claude-3-5-haiku-20241022",
             max_tokens=800,
             messages=[{"role": "user", "content": prompt}]
         )
