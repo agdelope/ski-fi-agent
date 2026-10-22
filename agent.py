@@ -68,8 +68,9 @@ def evaluate_with_claude(weather_data):
            - A warm, fun, and persuasive message highlighting family benefits (cozy cabin vibes, outdoor snow play for kids, hot drinks, good weather window).
         """
 
+        # Using standard, long-term supported Claude 3 Haiku API model ID
         response = client.messages.create(
-            model="claude-haiku-4-5",
+            model="claude-3-haiku-20240307",
             max_tokens=800,
             messages=[{"role": "user", "content": prompt}]
         )
@@ -81,7 +82,7 @@ def evaluate_with_claude(weather_data):
 def send_telegram_notification(message):
     """Send notification directly to phone via Telegram API"""
     if not TELEGRAM_BOT_TOKEN or not TELEGRAM_CHAT_ID:
-        print("⚠️ Telegram credentials missing. Printing output:")
+        print("⚠️ Telegram credentials missing or unconfigured. Printing output:")
         print(message)
         return
 
