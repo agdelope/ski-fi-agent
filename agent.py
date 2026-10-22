@@ -68,9 +68,8 @@ def evaluate_with_claude(weather_data):
            - A warm, fun, and persuasive message highlighting family benefits (cozy cabin vibes, outdoor snow play for kids, hot drinks, good weather window).
         """
 
-        # Using standard, long-term supported Claude 3 Haiku API model ID
         response = client.messages.create(
-            model="claude-3-haiku-20240307",
+            model="claude-3-5-sonnet-20241022",
             max_tokens=800,
             messages=[{"role": "user", "content": prompt}]
         )
