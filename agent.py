@@ -69,4 +69,52 @@ def evaluate_with_claude(weather_data):
         """
 
         response = client.messages.create(
-            model="cla
+            model="claude-haiku-5-5",
+            max_tokens=800,
+            messages=[{"role": "user", "content": prompt}]
+        )
+        
+        # Safely extract only text blocks (ignores internal reasoning/thinking blocks)
+        text_parts = [
+            block.text for block in response.content if getattr(block, "type", None) == "text"
+        ]
+        
+        return "".join(text_parts) if text_parts else "NO_TRIP"
+
+    except APIError as e:
+        print(f"❌ Anthropic API Error: {e}")
+        sys.exit(1)
+
+def send_telegram_notification(message):
+    """Send notification directly to phone via Telegram API"""
+    if not TELEGRAM_BOT_TOKEN or not TELEGRAM_CHAT_ID:
+        print("⚠️ Telegram credentials missing or unconfigured. Printing output:")
+        print(message)
+        return
+
+    url = f"https://api.telegram.org/bot{TELEGRAM_BOT_TOKEN}/sendMessage"
+    payload = {
+        "chat_id": TELEGRAM_CHAT_ID,
+        "text": message,
+        "parse_mode": "Markdown"
+    }
+    res = requests.post(url, json=payload)
+    if res.status_code != 200:
+        print(f"⚠️ Telegram send failed: {res.text}")
+
+def main():
+    print("Fetching weather for all target skiing spots...")
+    weather_data = fetch_weather_for_destinations()
+    
+    print("Evaluating top spot with Claude...")
+    claude_analysis = evaluate_with_claude(weather_data)
+
+    if not claude_analysis.startswith("NO_TRIP"):
+        airbnb_url = "https://www.airbnb.com/s/Sweden/homes"
+        full_message = f"{claude_analysis}\n\n🏡 *Browse Accommodations:*\n{airbnb_url}"
+        send_telegram_notification(full_message)
+    else:
+        print("✅ Finished: No trip recommended based on current forecasts.")
+
+if __name__ == "__main__":
+    main()
